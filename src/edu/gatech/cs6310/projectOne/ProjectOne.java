@@ -19,9 +19,9 @@ public class ProjectOne {
 
 	        String inputFilename = args[filenameIndex];
 
-	        Project1Scheduler scheduler = new Project1Scheduler();
-	        scheduler.calculateSchedule(inputFilename);
-	        System.out.printf("X=%.2f", scheduler.getObjectiveValue());
+	        GurobiScheduler scheduler = new GurobiScheduler();
+	        double objValue = scheduler.calculateSchedule(inputFilename);
+	        System.out.printf("X=%.2f", objValue);
 
 	}
 

@@ -4,7 +4,8 @@ public class GeneralConstraints {
 	
 	private int numCourses = 18;	
 	private int numSemesters = 12;
-	private int numCoursePerSemester = 2;
+	private int maxCoursePerSemester = 2;
+	private int timePerCourseTaken = 1;
 	
 	public int getNumCourses() {
 		return numCourses;
@@ -14,7 +15,12 @@ public class GeneralConstraints {
 		return numSemesters;
 	}
 
-	public int getNumCoursePerSemester() {
-		return numCoursePerSemester;
+	public int getMaxCoursePerSemester() {
+		return maxCoursePerSemester;
 	}
+
+	public int getTimePerCourseTaken() {
+		return timePerCourseTaken;
+	}
+
 }
