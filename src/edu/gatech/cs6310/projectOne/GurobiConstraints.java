@@ -10,16 +10,16 @@ import gurobi.*;
 
 public class GurobiConstraints {
 	
-	GeneralConstraints generalConstraints = new GeneralConstraints();
+	GeneralConstraints generalConst = new GeneralConstraints();
 	CourseAvailability courseAvail = new CourseAvailability();
 	CoursePrerequisites coursePrereq = new CoursePrerequisites();
 	
-    private int numCourses = generalConstraints.getNumCourses();	
-	private int numSemesters = generalConstraints.getNumSemesters();
-	private int maxCoursePerSemester = generalConstraints.getMaxCoursePerSemester();
-	private int timePerCourseTaken = generalConstraints.getTimePerCourseTaken();
-	
-    private int numStudents;
+    private int numCourses = generalConst.getNumCourses();	
+	private int numSemesters = generalConst.getNumSemesters();
+	private int maxCoursePerSemester = generalConst.getMaxCoursePerSemester();
+	private int timePerCourseTaken = generalConst.getTimePerCourseTaken();
+    private int numStudents = generalConst.getNumStudents();
+    
     private Double objectiveValue = null;
 
     private GRBVar[][][] yijk;  //i: student; j = course; k = semester

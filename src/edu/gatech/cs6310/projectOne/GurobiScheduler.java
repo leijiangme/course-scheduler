@@ -7,7 +7,7 @@ import gurobi.*;
 
 public class GurobiScheduler {
 	
-    double resClassSize;
+    double result;
     private List<StudentDemand> studentDemands;
     GurobiConstraints grbc = new GurobiConstraints();
     TestFilesReader tfr = new TestFilesReader();
@@ -15,11 +15,11 @@ public class GurobiScheduler {
 	
     private int numCourses = gc.getNumCourses();	
 	private int numSemesters = gc.getNumSemesters();
-	private int numStudents;
+	private int numStudents = gc.getNumStudents();
 
     public double calculateSchedule(String csvFile) {
         GRBEnv env;
-        GRBVar csVar;
+        GRBVar csvar;
         GRBVar[][][] yijk;
         
         try {
@@ -31,14 +31,19 @@ public class GurobiScheduler {
             studentDemands = tfr.getStudentDemands(csvFile);
 
             yijk = createYijk(model);
-            csVar = addCourseSizeLimit(model);
+            csvar = addCourseSizeLimit(model);
 
-            addConstraints(model, csVar);
-            setObjective(model, csVar);
+            grbc.generateMaxCoursePerSemesterConstraint(model);
+            grbc.generateCourseTakenTimeConstraint(model);
+            grbc.generateClassSizeConstraints(csvar, model);
+            grbc.generateCoursePrerequisiteConstraint(model);
+            grbc.generateStudentDemandConstraint(studentDemands, model);
+            
+            setObjective(model, csvar);
 
             model.optimize();
-            resClassSize = model.get(GRB.DoubleAttr.ObjVal);
-            return resClassSize;
+            result = model.get(GRB.DoubleAttr.ObjVal);
+            return result;
 
         } catch (IOException ioE) {
             ioE.printStackTrace();
@@ -70,21 +75,11 @@ public class GurobiScheduler {
             return yStCoSe;
         }
 
-   
+    
     private void setObjective(GRBModel model, GRBVar objVar) throws GRBException {
             GRBLinExpr objective = new GRBLinExpr();
             objective.addTerm(1, objVar);
-
             model.setObjective(objective, GRB.MINIMIZE);
         }
-    	
-   
-    private void addConstraints(GRBModel model, GRBVar csVar) throws GRBException {
-    	grbc.generateMaxCoursePerSemesterConstraint(model);
-        grbc.generateCourseTakenTimeConstraint(model);
-        grbc.generateClassSizeConstraints(csVar, model);
-        grbc.generateCoursePrerequisiteConstraint(model);
-        grbc.generateStudentDemandConstraint(studentDemands, model);
-    }
 
 }

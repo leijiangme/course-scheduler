@@ -9,20 +9,14 @@ public class ProjectOne {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		  int filenameIndex = Arrays.asList(args).indexOf("-i") + 1;
+		int argsIndex = Arrays.asList(args).indexOf("-i") + 1;
 
-	        if (filenameIndex == 0 || filenameIndex >= args.length) {
-	            throw new InvalidParameterException("Usage: java "
-	                            + ProjectOne.class.getName()
-	                            + " -i <student demands filename>");
+	        if (argsIndex == 0 || argsIndex >= args.length) {
+	            throw new InvalidParameterException("Usage: ProjectOne -i <Student_Demand_#>");
 	        }
-
-	        String inputFilename = args[filenameIndex];
-
+	        String csvFileName = args[argsIndex];
 	        GurobiScheduler scheduler = new GurobiScheduler();
-	        double objValue = scheduler.calculateSchedule(inputFilename);
+	        double objValue = scheduler.calculateSchedule(csvFileName);
 	        System.out.printf("X=%.2f", objValue);
-
 	}
-
 }

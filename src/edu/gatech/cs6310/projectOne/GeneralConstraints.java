@@ -6,6 +6,7 @@ public class GeneralConstraints {
 	private int numSemesters = 12;
 	private int maxCoursePerSemester = 2;
 	private int timePerCourseTaken = 1;
+	private int numStudents;
 	
 	public int getNumCourses() {
 		return numCourses;
@@ -21,6 +22,14 @@ public class GeneralConstraints {
 
 	public int getTimePerCourseTaken() {
 		return timePerCourseTaken;
+	}
+
+	public int getNumStudents() {
+		return numStudents;
+	}
+
+	public void setNumStudents(int numStudents) {
+		this.numStudents = numStudents;
 	}
 
 }

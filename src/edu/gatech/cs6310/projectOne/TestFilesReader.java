@@ -10,25 +10,41 @@ import java.util.List;
 
 public class TestFilesReader {
 
-    List<StudentDemand> getStudentDemands(String csvFile)
-        throws FileNotFoundException, IOException {
-			String csvSplitBy = ",";
-			String line = "";
-			BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFile));
-			
-			List<StudentDemand> studentDemands = new ArrayList<StudentDemand>();	
-			
-			while ((line = bufferedReader.readLine()) != null) {
-			    String[] strings = line.split(csvSplitBy);
-				int[] numbers = new int[strings.length];
+	List<StudentDemand> getStudentDemands(String csvFile) {
+		
+		List<StudentDemand> studentDemands = new ArrayList<StudentDemand>();
+		GeneralConstraints generalConstraints = new GeneralConstraints();
 
-				for (int i = 0; i < numbers.length; i++) {
-				    numbers[i] = Integer.parseInt(strings[i]);
-				}
+		String csvDelimiter = ",";
+		BufferedReader br = null;
+		String line = "";
+		int lineNumbers = 0;
 
-				studentDemands.add(new StudentDemand(numbers[0], numbers[1]));
+		try {
+			StudentDemand sd = new StudentDemand();
+			br = new BufferedReader(new FileReader(csvFile));
+			br.readLine();
+			while ((line = br.readLine()) != null) {
+				String[] strings = line.split(csvDelimiter);
+				sd.setStudentID(Integer.parseInt(strings[0]));
+				sd.setCourseID(Integer.parseInt(strings[1]));
+				lineNumbers++;
+				studentDemands.add(sd);
 			}
-			bufferedReader.close();
-			return studentDemands;
-    }
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+        generalConstraints.setNumStudents(lineNumbers);
+		return studentDemands;
+	}
 }
