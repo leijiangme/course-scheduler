@@ -1,85 +1,97 @@
 package edu.gatech.cs6310.projectOne;
 
-import java.io.IOException;
-import java.util.List;
-
 import gurobi.*;
 
-public class GurobiScheduler {
+public class GurobiScheduler extends Scheduler {
+
+	private CourseAvailability courseAvail = new CourseAvailability();
+	private CoursePrerequisites coursePrereq = new CoursePrerequisites();
+
+	@Override
+	protected void generateConstraints() throws GRBException {
+		generateClassSizeConstraints();
+		generateMaxCourseConstraint();
+		generatePrerequisiteConstraint();
+		generateStudentDemandConstraint();
+	}
+
+	protected void generateClassSizeConstraints() throws GRBException {
+		for (int course = 0; course < numCourses; course++) {
+			for (int semester = 0; semester < numSemesters; semester++) {
+				
+				GRBLinExpr classSizeGRB = new GRBLinExpr();
+				if (courseAvail.courseAvailability[course][semester] == true) {		
+					for (int student = 0; student < numStudents; student++) {
+						classSizeGRB.addTerm(1, yijk[student][course][semester]);
+					}
+					model.addConstr(classSizeGRB, GRB.LESS_EQUAL, x, "Courses offered");
+				} else {				
+					for (int student = 0; student < numStudents; student++) {
+						classSizeGRB.addTerm(1, yijk[student][course][semester]);
+					}
+					model.addConstr(classSizeGRB, GRB.LESS_EQUAL, 0, "Courses not offered");
+				}
+			}
+		}
+	}
+
+	protected void generatePrerequisiteConstraint() throws GRBException {
+		for (int cp = 0; cp < coursePrereq.coursePrerequisites.length; cp++) {
+			int prereq = coursePrereq.coursePrerequisites[cp][0];
+			int postreq = coursePrereq.coursePrerequisites[cp][1];
+
+			for (int student = 0; student < numStudents; student++) {
+				for (int semester = 0; semester < numSemesters; semester++) {
+
+					GRBLinExpr coursePrerequisiteGRB = new GRBLinExpr();
+					for (int k = 0; k < semester; k++) {
+						coursePrerequisiteGRB.addTerm(1, yijk[student][prereq][k]);
+					}
+					model.addConstr(coursePrerequisiteGRB, 
+							GRB.GREATER_EQUAL,
+							yijk[student][postreq][semester], 
+							"Prerequisite constraint");
+				}
+			}
+		}
+	}
+
+	protected void generateStudentDemandConstraint() throws GRBException {
+		for (int student = 0; student < numStudents; student++) {
+			for (int course = 0; course < numCourses; course++) {
+				
+				for (StudentDemand sd : studentDemands) {
+					GRBLinExpr studentDemandGRB = new GRBLinExpr();
+					if ((student + 1) == sd.getStudentID() && (course + 1) == sd.getCourseID()) {
+						for (int semester = 0; semester < numSemesters; semester++) {
+							studentDemandGRB.addTerm(1, yijk[student][course][semester]);
+						}
+						model.addConstr(studentDemandGRB, GRB.EQUAL, 1, "Student demand constraint");
+					} else {
+						for (int semester = 0; semester < numSemesters; semester++) {
+							studentDemandGRB.addTerm(1, yijk[student][course][semester]);
+						}
+						model.addConstr(studentDemandGRB, GRB.EQUAL, 0, "Student demand constraint");
+					}
+				}
+			}
+		}
+	}
 	
-    double result;
-    private List<StudentDemand> studentDemands;
-    GurobiConstraints grbc = new GurobiConstraints();
-    TestFilesReader tfr = new TestFilesReader();
-    GeneralConstraints gc = new GeneralConstraints();
-	
-    private int numCourses = gc.getNumCourses();	
-	private int numSemesters = gc.getNumSemesters();
-	private int numStudents = gc.getNumStudents();
+	protected void generateMaxCourseConstraint() throws GRBException {
+		for (int student = 0; student < numStudents; student++) {
+			for (int semester = 0; semester < numSemesters; semester++) {
 
-    public double calculateSchedule(String csvFile) {
-        GRBEnv env;
-        GRBVar csvar;
-        GRBVar[][][] yijk;
-        
-        try {
-            env = new GRBEnv("grb.log");
-            env.set(GRB.IntParam.LogToConsole, 0);
-
-            GRBModel model = new GRBModel(env);
-
-            studentDemands = tfr.getStudentDemands(csvFile);
-
-            yijk = createYijk(model);
-            csvar = addCourseSizeLimit(model);
-
-            grbc.generateMaxCoursePerSemesterConstraint(model);
-            grbc.generateCourseTakenTimeConstraint(model);
-            grbc.generateClassSizeConstraints(csvar, model);
-            grbc.generateCoursePrerequisiteConstraint(model);
-            grbc.generateStudentDemandConstraint(studentDemands, model);
-            
-            setObjective(model, csvar);
-
-            model.optimize();
-            result = model.get(GRB.DoubleAttr.ObjVal);
-            return result;
-
-        } catch (IOException ioE) {
-            ioE.printStackTrace();
-        } catch (GRBException grbE) {
-            grbE.printStackTrace();
-        }
-
-    }
-
-   
-    private GRBVar addCourseSizeLimit(GRBModel model) throws GRBException {
-            GRBVar ret = model.addVar(0, numStudents, 0.0, GRB.INTEGER, "classSize");
-            model.update();
-            return ret;
-        }
-
-    
-    private GRBVar[][][] createYijk(GRBModel model) throws GRBException {
-            GRBVar[][][] yStCoSe = new GRBVar[numStudents + 1][numCourses + 1][numSemesters + 1];
-          
-            for (int student = 1; student <= numStudents; student++) {
-                for (int course = 1; course <= numCourses; course++) {
-                    for (int semester = 1; semester <= numSemesters; semester++) {
-                        yStCoSe[student][course][semester] = model.addVar(0, 1, 0.0, GRB.BINARY);
-                    }
-                }
-            }
-            model.update();
-            return yStCoSe;
-        }
-
-    
-    private void setObjective(GRBModel model, GRBVar objVar) throws GRBException {
-            GRBLinExpr objective = new GRBLinExpr();
-            objective.addTerm(1, objVar);
-            model.setObjective(objective, GRB.MINIMIZE);
-        }
+				GRBLinExpr maxCoursePerSemesterGRB = new GRBLinExpr();
+				for (int course = 0; course < numCourses; course++) {
+					maxCoursePerSemesterGRB.addTerm(1, yijk[student][course][semester]);
+				}
+				model.addConstr(maxCoursePerSemesterGRB, 
+						        GRB.LESS_EQUAL,
+						        2, 
+						        "Max course per sememster constraints");
+			}
+		}
+	}
 
 }

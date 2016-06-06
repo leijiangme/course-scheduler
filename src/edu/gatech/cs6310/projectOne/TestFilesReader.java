@@ -1,7 +1,6 @@
 package edu.gatech.cs6310.projectOne;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,26 +8,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestFilesReader {
+	
+	List<StudentDemand> studentDemands = new ArrayList<StudentDemand>();
+	GeneralConstraints generalConstraints = new GeneralConstraints();
 
-	List<StudentDemand> getStudentDemands(String csvFile) {
-		
-		List<StudentDemand> studentDemands = new ArrayList<StudentDemand>();
-		GeneralConstraints generalConstraints = new GeneralConstraints();
-
+	public List<StudentDemand> getStudentDemands(String csvFile) {
+	
 		String csvDelimiter = ",";
 		BufferedReader br = null;
 		String line = "";
-		int lineNumbers = 0;
-
-		try {
-			StudentDemand sd = new StudentDemand();
+	
+		try {			
 			br = new BufferedReader(new FileReader(csvFile));
 			br.readLine();
+			
 			while ((line = br.readLine()) != null) {
 				String[] strings = line.split(csvDelimiter);
+				StudentDemand sd = new StudentDemand();
 				sd.setStudentID(Integer.parseInt(strings[0]));
 				sd.setCourseID(Integer.parseInt(strings[1]));
-				lineNumbers++;
 				studentDemands.add(sd);
 			}
 		} catch (FileNotFoundException e) {
@@ -44,7 +42,7 @@ public class TestFilesReader {
 				}
 			}
 		}
-        generalConstraints.setNumStudents(lineNumbers);
+		generalConstraints.setNumStudents(studentDemands.size());
 		return studentDemands;
 	}
 }
