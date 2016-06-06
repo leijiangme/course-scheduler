@@ -7,21 +7,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestFilesReader {
-	
+public class StudentDemandFilesReader {
+
 	List<StudentDemand> studentDemands = new ArrayList<StudentDemand>();
 	GeneralConstraints generalConstraints = new GeneralConstraints();
 
 	public List<StudentDemand> getStudentDemands(String csvFile) {
-	
+
 		String csvDelimiter = ",";
 		BufferedReader br = null;
 		String line = "";
-	
-		try {			
+
+		try {
 			br = new BufferedReader(new FileReader(csvFile));
 			br.readLine();
-			
+
 			while ((line = br.readLine()) != null) {
 				String[] strings = line.split(csvDelimiter);
 				StudentDemand sd = new StudentDemand();
@@ -42,7 +42,6 @@ public class TestFilesReader {
 				}
 			}
 		}
-		generalConstraints.setNumStudents(studentDemands.size());
 		return studentDemands;
 	}
 }

@@ -20,6 +20,4 @@ public class StudentDemand {
 	public void setCourseID(int courseID) {
 		this.courseID = courseID;
 	}
-	
-	
 }
