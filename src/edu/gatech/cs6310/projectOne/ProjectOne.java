@@ -16,7 +16,7 @@ public class ProjectOne {
 		}
 		
 		String csvFileName = args[argsIndex];
-		Scheduler scheduler = new GurobiScheduler();
+		GurobiScheduler scheduler = new GurobiScheduler();
 		System.out.println(csvFileName);
 		double objValue = scheduler.calculateSchedule(csvFileName);
 		System.out.printf("X=%.2f", objValue);
