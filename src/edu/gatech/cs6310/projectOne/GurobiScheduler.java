@@ -64,7 +64,7 @@ public class GurobiScheduler extends Scheduler {
 	
 	@Override
 	protected void initializeYijk() throws GRBException {
-		yijk = new GRBVar[numStudents ][numCourses][numSemesters];
+		yijk = new GRBVar[numStudents][numCourses][numSemesters];
 		for (int student = 0; student < numStudents; student++) {
 			for (int course = 0; course < numCourses; course++) {
 				for (int semester = 0; semester < numSemesters; semester++) {
@@ -94,8 +94,7 @@ public class GurobiScheduler extends Scheduler {
 	
 	protected void generateClassSizeConstraints() throws GRBException {
 		for (int course = 0; course < numCourses; course++) {
-			for (int semester = 0; semester < numSemesters; semester++) {
-				
+			for (int semester = 0; semester < numSemesters; semester++) {			
 				GRBLinExpr classSizeGRB = new GRBLinExpr();
 				if (courseAvail.courseAvailability[course][semester] == true) {		
 					for (int student = 0; student < numStudents; student++) {
@@ -122,7 +121,6 @@ public class GurobiScheduler extends Scheduler {
 
 			for (int student = 0; student < numStudents; student++) {
 				for (int semester = 0; semester < numSemesters; semester++) {
-
 					GRBLinExpr coursePrerequisiteGRB = new GRBLinExpr();
 					for (int k = 0; k < semester; k++) {
 						coursePrerequisiteGRB.addTerm(1, yijk[student][prereq][k]);
@@ -136,7 +134,6 @@ public class GurobiScheduler extends Scheduler {
 	}
 
 	protected void generateStudentDemandConstraint() throws GRBException {
-
 		for (StudentDemand sd : studentDemands) {
 			int student = sd.getStudentID() - 1;
 			int course = sd.getCourseID() - 1;
@@ -153,7 +150,6 @@ public class GurobiScheduler extends Scheduler {
 	protected void generateMaxCourseConstraint() throws GRBException {
 		for (int student = 0; student < numStudents; student++) {
 			for (int semester = 0; semester < numSemesters; semester++) {
-
 				GRBLinExpr maxCoursePerSemesterGRB = new GRBLinExpr();
 				for (int course = 0; course < numCourses; course++) {
 					maxCoursePerSemesterGRB.addTerm(1, yijk[student][course][semester]);

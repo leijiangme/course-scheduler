@@ -10,7 +10,6 @@ import java.util.List;
 public class StudentDemandFilesReader {
 
 	List<StudentDemand> studentDemands = new ArrayList<StudentDemand>();
-	GeneralConstraints generalConstraints = new GeneralConstraints();
 
 	public List<StudentDemand> getStudentDemands(String csvFile) {
 
